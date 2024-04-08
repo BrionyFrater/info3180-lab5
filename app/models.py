@@ -1,6 +1,6 @@
 # Add any model classes for Flask-SQLAlchemy here
 from . import db
-import datetime
+from datetime import date
 
 class Movie(db.Model):
 
@@ -16,7 +16,7 @@ class Movie(db.Model):
         self.title = title
         self.description = description
         self.poster = poster
-        self.created_at = datetime.datetime.now
+        self.created_at = date.today().strftime('%d-%m-%Y')
 
     
     def __repr__(self):

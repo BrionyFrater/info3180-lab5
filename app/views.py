@@ -24,34 +24,36 @@ def index():
 def movies():
     form = MovieForm()
 
-    if form.validate_on_submit():
+    if request.method == 'POST':
+        print('val val')
+        if form.validate_on_submit():
 
-        poster = form.poster.data
-        filename = secure_filename(poster.filename)
-        poster.save(os.path.join(
-            app.config['UPLOAD_FOLDER'], filename
-        ))
+            poster = form.poster.data
+            filename = secure_filename(poster.filename)
+            poster.save(os.path.join(
+                app.config['UPLOAD_FOLDER'], filename
+            ))
 
 
-        movie = Movie(
-            form.title,
-            form.description,
-            filename
-        )
+            movie = Movie(
+                form.title,
+                form.description,
+                filename
+            )
 
-        db.session.add(movie)
-        db.session.commit()
+            db.session.add(movie)
+            db.session.commit()
 
-        feedback = {
-            "message": "Movie Successfully added",
-            "title": form.title,
-            "poster": filename,
-            "description": form.description
-        }
+            feedback = {
+                "message": "Movie Successfully added",
+                "title": form.title,
+                "poster": filename,
+                "description": form.description
+            }
 
-        return jsonify(feedback), 201
+            return jsonify(feedback)
 
-    return jsonify(errors=form_errors(form)), 400
+    return jsonify({"errors" : form_errors(form)})
 
 
 ###
@@ -63,15 +65,14 @@ def movies():
 def form_errors(form):
     error_messages = []
     """Collects form errors"""
-    key = 1
     for field, errors in form.errors.items():
         for error in errors:
             message = u"Error in the %s field - %s" % (
                     getattr(form, field).label.text,
                     error
                 )
-            error_messages.append({key : key, message : message})
-            key = key + 1
+            error_messages.append(message)
+           
 
     return error_messages
 
@@ -98,3 +99,4 @@ def add_header(response):
 def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
+
