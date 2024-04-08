@@ -5,10 +5,12 @@ Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file creates your application.
 """
 
-from app import app
+from app import app, db
 from flask import render_template, request, jsonify, send_file
 import os
-
+from .models import Movie
+from .forms import MovieForm
+from werkzeug.utils import secure_filename
 
 ###
 # Routing for your application.
@@ -17,6 +19,38 @@ import os
 @app.route('/')
 def index():
     return jsonify(message="This is the beginning of our API")
+
+@app.route('/api/v1/movies', methods=['POST'])
+def movies():
+    form = MovieForm()
+
+    if form.validate_on_submit():
+
+        poster = form.poster.data
+        filename = secure_filename(poster.filename)
+        poster.save(os.path.join(
+            app.config['UPLOAD_FOLDER', filename]
+        ))
+
+        movie = Movie(
+            form.title,
+            form.description,
+            filename
+        )
+
+        db.session.add(movie)
+        db.session.commit()
+
+        feedback = {
+            "message": "Movie Successfully added",
+            "title": form.title,
+            "poster": filename,
+            "description": form.description
+        }
+
+        return jsonify(feedback), 201
+
+    return jsonify(errors=form_errors(form)), 400
 
 
 ###
@@ -28,13 +62,15 @@ def index():
 def form_errors(form):
     error_messages = []
     """Collects form errors"""
+    key = 1
     for field, errors in form.errors.items():
         for error in errors:
             message = u"Error in the %s field - %s" % (
                     getattr(form, field).label.text,
                     error
                 )
-            error_messages.append(message)
+            error_messages.append({key : key, message : message})
+            key = key + 1
 
     return error_messages
 
