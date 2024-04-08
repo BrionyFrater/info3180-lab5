@@ -29,8 +29,9 @@ def movies():
         poster = form.poster.data
         filename = secure_filename(poster.filename)
         poster.save(os.path.join(
-            app.config['UPLOAD_FOLDER', filename]
+            app.config['UPLOAD_FOLDER'], filename
         ))
+
 
         movie = Movie(
             form.title,
