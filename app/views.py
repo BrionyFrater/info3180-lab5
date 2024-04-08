@@ -11,6 +11,7 @@ import os
 from .models import Movie
 from .forms import MovieForm
 from werkzeug.utils import secure_filename
+from flask_wtf.csrf import generate_csrf
 
 ###
 # Routing for your application.
@@ -36,8 +37,8 @@ def movies():
 
 
             movie = Movie(
-                form.title,
-                form.description,
+                form.title.data,
+                form.description.data,
                 filename
             )
 
@@ -46,15 +47,18 @@ def movies():
 
             feedback = {
                 "message": "Movie Successfully added",
-                "title": form.title,
+                "title": form.title.data,
                 "poster": filename,
-                "description": form.description
+                "description": form.description.data
             }
 
             return jsonify(feedback)
 
     return jsonify({"errors" : form_errors(form)})
 
+@app.route('/api/v1/csrf-token', methods=['GET']) 
+def get_csrf():
+    return jsonify({'csrf_token': generate_csrf()})
 
 ###
 # The functions below should be applicable to all Flask apps.
