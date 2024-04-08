@@ -2,7 +2,7 @@
     import { ref, onMounted } from 'vue';
     
     let csrf_token = ref(""); 
-    let isError = ref(false)
+    let isError = ref()
     let response = ref({})
 
     function getCsrfToken(){

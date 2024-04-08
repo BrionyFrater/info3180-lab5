@@ -45,12 +45,15 @@ def movies():
             db.session.add(movie)
             db.session.commit()
 
+            
             feedback = {
                 "message": "Movie Successfully added",
                 "title": form.title.data,
                 "poster": filename,
                 "description": form.description.data
             }
+
+            
 
             return jsonify(feedback)
 
